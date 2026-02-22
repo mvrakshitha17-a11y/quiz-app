@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Advanced Quiz App</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #667eea, #764ba2);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .quiz-box {
+    background: #ffffff;
+    width: 420px;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+
+  .timer {
+    text-align: right;
+    font-weight: bold;
+    color: red;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    color: #000000;
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    background: #f1f1f1;
+    margin: 10px 0;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  label {
+    color: #000000;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  input[type="radio"] {
+    margin-right: 10px;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    background: #4a90e2;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+  }
+
+  button:hover {
+    background: #357ab8;
+  }
+
+  .result {
+    text-align: center;
+  }
+
+  .result h1 {
+    color: #27ae60;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="quiz-box" id="quiz">
+  <div class="timer" id="timer">Time: 30s</div>
+
+  <h2 id="question">Question text will appear here</h2>
+
+  <ul>
+    <li>
+      <input type="radio" name="answer" id="a" class="answer">
+      <label for="a" id="a_text">Option A</label>
+    </li>
+    <li>
+      <input type="radio" name="answer" id="b" class="answer">
+      <label for="b" id="b_text">Option B</label>
+    </li>
+    <li>
+      <input type="radio" name="answer" id="c" class="answer">
+      <label for="c" id="c_text">Option C</label>
+    </li>
+    <li>
+      <input type="radio" name="answer" id="d" class="answer">
+      <label for="d" id="d_text">Option D</label>
+    </li>
+  </ul>
+
+  <button id="submit">Next</button>
+</div>
+
+<script>
+  const quizData = [
+    {
+      question: "Which language runs in the browser?",
+      a: "Java",
+      b: "C",
+      c: "Python",
+      d: "JavaScript",
+      correct: "d"
+    },
+    {
+      question: "What does DOM stand for?",
+      a: "Data Object Model",
+      b: "Document Object Model",
+      c: "Digital Output Method",
+      d: "Desktop Oriented Mode",
+      correct: "b"
+    },
+    {
+      question: "Which keyword is used to declare variables in JavaScript?",
+      a: "int",
+      b: "string",
+      c: "var",
+      d: "define",
+      correct: "c"
+    }
+  ];
+
+  const quiz = document.getElementById("quiz");
+  const questionEl = document.getElementById("question");
+  const answerEls = document.querySelectorAll(".answer");
+  const timerEl = document.getElementById("timer");
+  const submitBtn = document.getElementById("submit");
+
+  const a_text = document.getElementById("a_text");
+  const b_text = document.getElementById("b_text");
+  const c_text = document.getElementById("c_text");
+  const d_text = document.getElementById("d_text");
+
+  let currentQuiz = 0;
+  let score = 0;
+  let timeLeft = 30;
+  let timer;
+
+  loadQuiz();
+  startTimer();
+
+  function loadQuiz() {
+    deselectAnswers();
+    timeLeft = 30;
+
+    const q = quizData[currentQuiz];
+    questionEl.innerText = q.question;
+    a_text.innerText = q.a;
+    b_text.innerText = q.b;
+    c_text.innerText = q.c;
+    d_text.innerText = q.d;
+  }
+
+  function deselectAnswers() {
+    answerEls.forEach(el => el.checked = false);
+  }
+
+  function getSelected() {
+    let answer;
+    answerEls.forEach(el => {
+      if (el.checked) {
+        answer = el.id;
+      }
+    });
+    return answer;
+  }
+
+  function startTimer() {
+    timer = setInterval(() => {
+      timerEl.innerText = "Time: " + timeLeft + "s";
+      timeLeft--;
+
+      if (timeLeft < 0) {
+        nextQuestion();
+      }
+    }, 1000);
+  }
+
+  function nextQuestion() {
+    clearInterval(timer);
+
+    const answer = getSelected();
+    if (answer === quizData[currentQuiz].correct) {
+      score++;
+    }
+
+    currentQuiz++;
+
+    if (currentQuiz < quizData.length) {
+      loadQuiz();
+      startTimer();
+    } else {
+      showResult();
+    }
+  }
+
+  submitBtn.addEventListener("click", nextQuestion);
+
+  function showResult() {
+    const percentage = Math.round((score / quizData.length) * 100);
+    quiz.innerHTML = `
+      <div class="result">
+        <h1>Quiz Completed 🎉</h1>
+        <p>Score: ${score} / ${quizData.length}</p>
+        <p>Percentage: ${percentage}%</p>
+        <button onclick="location.reload()">Restart Quiz</button>
+      </div>
+    `;
+  }
+</script>
+
+</body>
+</html>
